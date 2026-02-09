@@ -1,0 +1,173 @@
+import { useRef, useLayoutEffect } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ArrowRight } from 'lucide-react';
+
+gsap.registerPlugin(ScrollTrigger);
+
+export default function MigrationSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const bgRef = useRef<HTMLImageElement>(null);
+  const labelRef = useRef<HTMLDivElement>(null);
+  const headline1Ref = useRef<HTMLDivElement>(null);
+  const headline2Ref = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLParagraphElement>(null);
+  const ctaRef = useRef<HTMLAnchorElement>(null);
+
+  useLayoutEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const ctx = gsap.context(() => {
+      const scrollTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: 'top top',
+          end: '+=130%',
+          pin: true,
+          scrub: 0.6,
+        },
+      });
+
+      // Phase 1 (0%-30%): Entrance
+      // Background
+      scrollTl.fromTo(
+        bgRef.current,
+        { scale: 1.12, x: '-6vw', opacity: 0.7 },
+        { scale: 1, x: 0, opacity: 1, ease: 'none' },
+        0
+      );
+
+      // Label from top
+      scrollTl.fromTo(
+        labelRef.current,
+        { y: '-10vh', opacity: 0 },
+        { y: 0, opacity: 1, ease: 'power2.out' },
+        0
+      );
+
+      // Headline line 1 from left
+      scrollTl.fromTo(
+        headline1Ref.current,
+        { x: '-60vw', opacity: 0 },
+        { x: 0, opacity: 1, ease: 'power3.out' },
+        0.05
+      );
+
+      // Headline line 2 from right
+      scrollTl.fromTo(
+        headline2Ref.current,
+        { x: '60vw', opacity: 0 },
+        { x: 0, opacity: 1, ease: 'power3.out' },
+        0.1
+      );
+
+      // Body from left
+      scrollTl.fromTo(
+        bodyRef.current,
+        { x: '-20vw', opacity: 0 },
+        { x: 0, opacity: 1, ease: 'power2.out' },
+        0.15
+      );
+
+      // CTA from right
+      scrollTl.fromTo(
+        ctaRef.current,
+        { x: '20vw', opacity: 0 },
+        { x: 0, opacity: 1, ease: 'power2.out' },
+        0.15
+      );
+
+      // Phase 2 (30%-70%): Settle
+
+      // Phase 3 (70%-100%): Exit
+      scrollTl.fromTo(
+        [headline1Ref.current, headline2Ref.current],
+        { scale: 1, opacity: 1 },
+        { scale: 1.08, opacity: 0, ease: 'power2.in' },
+        0.7
+      );
+
+      scrollTl.fromTo(
+        bgRef.current,
+        { scale: 1, opacity: 1 },
+        { scale: 1.08, opacity: 0.8, ease: 'none' },
+        0.7
+      );
+
+      scrollTl.fromTo(
+        [bodyRef.current, ctaRef.current],
+        { y: 0, opacity: 1 },
+        { y: '6vh', opacity: 0, ease: 'power2.in' },
+        0.7
+      );
+
+      scrollTl.fromTo(
+        labelRef.current,
+        { opacity: 1 },
+        { opacity: 0, ease: 'power2.in' },
+        0.75
+      );
+    }, section);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <section
+      ref={sectionRef}
+      id="migration"
+      className="section-pinned bg-[#0B0F0D]"
+    >
+      {/* Background image */}
+      <img
+        ref={bgRef}
+        src="/images/wildebeest_migration.jpg"
+        alt="Great Migration"
+        className="bg-image"
+      />
+      
+      {/* Dark overlay */}
+      <div className="bg-overlay" />
+
+      {/* Content */}
+      <div className="relative z-10 h-full flex flex-col items-center">
+        {/* Category label - top center */}
+        <div
+          ref={labelRef}
+          className="absolute top-[7vh] left-1/2 -translate-x-1/2"
+        >
+          <span className="label-mono text-[#B7C0B3]">SEASONAL SPECTACLE</span>
+        </div>
+
+        {/* Center headline */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[96vw]">
+          <div ref={headline1Ref} className="headline-section text-[#F4F1EA] text-[clamp(56px,12vw,160px)]">
+            GREAT
+          </div>
+          <div ref={headline2Ref} className="headline-section text-[#F4F1EA] text-[clamp(48px,11vw,150px)]">
+            MIGRATION
+          </div>
+        </div>
+
+        {/* Bottom left body */}
+        <p
+          ref={bodyRef}
+          className="absolute left-[6vw] bottom-[10vh] max-w-[34vw] text-[#B7C0B3] text-sm md:text-base leading-relaxed"
+        >
+          Witness millions of wildebeest and zebra cross the Mara River—one of nature's most intense survival dramas.
+        </p>
+
+        {/* Bottom right CTA */}
+        <a
+          ref={ctaRef}
+          href="#packages"
+          className="absolute right-[6vw] bottom-[10vh] flex items-center gap-2 text-[#F4F1EA] hover:text-[#D4A23A] transition-colors group"
+        >
+          <span className="text-sm font-medium">See migration dates</span>
+          <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+        </a>
+      </div>
+    </section>
+  );
+}
